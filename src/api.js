@@ -45,7 +45,7 @@ mc.connect('mongodb://192.168.159.14:27017', {useUnifiedTopology: true})
 
     //get all cards
     app.get('/api/getAll', (req, res) => {
-      card_info.find({}, {projection: {_id: 0, name: 1, card: 1}}).toArray()
+      card_info.find({}, {projection: {_id: 0, name: 1, cardID: 1, added: 1}}).toArray()
         .then(cards => {
           console.log(cards)
           res.send(cards)
