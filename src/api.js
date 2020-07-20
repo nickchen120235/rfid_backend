@@ -5,7 +5,9 @@ app.listen(4000, () => console.log('listening on 4000'))
 
 //Middleware
 const bodyParser = require('body-parser')
-app.use(bodyParser.urlencoded({extended: true}))
+app.use(bodyParser.json())
+const cors = require('cors')
+app.use(cors())
 
 //MongoDB initialization
 const mc = require('mongodb').MongoClient
@@ -19,16 +21,21 @@ mc.connect('mongodb://192.168.159.14:27017', {useUnifiedTopology: true})
 
     //add card info
     app.post('/api/addCard', (req, res) => {
+      console.log(`req.body: ${req.body}`)
       card_info.find({cardID: req.body.cardID}).toArray()
         .then(findRes => {
+          console.log('findRes:')
+          console.log(findRes)
           if(findRes.length === 0){
             card_info.insertOne(req.body)
-              .then(insertRes => console.log(insertRes.result))
+              .then(insertRes => res.send(insertRes.result))
               .catch(err => console.error(err))
           }
-          else console.log('This card has been registered.')
+          else {
+            res.send('This card has been registered.')
+          }
         })
-      res.redirect('#')
+      //res.redirect('#')
     })
 
     //remove card info
@@ -38,10 +45,12 @@ mc.connect('mongodb://192.168.159.14:27017', {useUnifiedTopology: true})
 
     //get all cards
     app.get('/api/getAll', (req, res) => {
-      card_info.find().toArray()
-        .then(cards => console.log(cards))
+      card_info.find({}, {projection: {_id: 0, name: 1, card: 1}}).toArray()
+        .then(cards => {
+          console.log(cards)
+          res.send(cards)
+        })
         .catch(err => console.error(err))
-      res.redirect('#')
     })
 
     //add card record
